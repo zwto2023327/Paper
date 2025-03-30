@@ -1,0 +1,125 @@
+todo:
+1.跑通LC
+2.隐蔽性建模
+3.tiny数据集
+可以协助的：
+1.smaples画图（70环境中）
+2，调参
+2025/3/24
+1.挑合适的量化比（300epoch）
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:255:8_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:255:8_ran_p0.025 2>&1 &
+0.6434 0.9484
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:255:12_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:255:12 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:255:12_ran_p0.025 2>&1 &
+0.5405 0.9502
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:255:16_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:255:16 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:255:16_ran_p0.025 2>&1 &
+0.3191 0.9485
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q24:48:8_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 24:48:8 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q24:48:8_ran_p0.025 2>&1 &
+0.7143 0.9504
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q23:47:7_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 23:47:7 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q23:47:7_ran_p0.025 2>&1 &
+0.6328 0.9506
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q35:71:11_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 35:71:11 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q35:71:11_ran_p0.025 2>&1 &
+0.5418 0.9494
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q36:72:12_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 36:72:12 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q36:72:12_ran_p0.025 2>&1 &
+0.5379 0.9481
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q48:96:16_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 48:96:16 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q48:96:16_ran_p0.025 2>&1 &
+0.3696 0.9474
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q47:97:15_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 47:97:15 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q47:97:15_ran_p0.025 2>&1 &
+0.5229 0.9460
+换通道
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q8:255:255_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 8:255:255 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q8:255:255_ran_p0.025 2>&1 &
+0.8185 0.9482
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q12:255:255_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 12:255:255 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q12:255:255_ran_p0.025 2>&1 &
+0.6451 0.9474
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q16:255:255_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 16:255:255 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q16:255:255_ran_p0.025 2>&1 &
+0.5130 0.9498
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:8:255_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:8:255 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:8:255_ran_p0.025 2>&1 &
+0.6750 0.9434
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:12:255_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:12:255 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:12:255_ran_p0.025 2>&1 &
+0.6886 0.9486
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:16:255_ran_p0.025 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:16:255 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:16:255_ran_p0.025 2>&1 &
+0.5901 0.9469
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_ran_p0.025 --selection random --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_ran_p0.025 2>&1 &
+0.7780 0.9462
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_ran_p0.025 --selection random --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.025 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_ran_p0.025 2>&1 &
+0.6659 0.9465
+2.metric  todo:加量化 加LC等攻击
+0.01
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_ran_p0.01 --selection random --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_ran_p0.01 2>&1 &
+0.3887 0.9506
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_ran_p0.01 --selection random --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_ran_p0.01 2>&1 &
+0.5341 0.9490
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_forget_p0.01 --selection forget --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_forget_p0.01 2>&1 &
+0.7280 0.9410
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_forget_p0.01 --selection forget --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_forget_p0.01 2>&1 &
+0.6951 0.9402
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_grad_p0.01 --selection grad --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_grad_p0.01 2>&1 &
+0.5370 0.9460
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_grad_p0.01 --selection grad --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_grad_p0.01 2>&1 &
+0.6032 0.9424
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_loss_p0.01 --selection loss --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_loss_p0.01 2>&1 &
+0.5494 0.9420
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_loss_p0.01 --selection loss --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_loss_p0.01 2>&1 &
+0.6032 0.9461
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_max_p0.01 --selection res --res_sel max --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_max_p0.01 2>&1 &
+0.7530 0.9453
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_max_p0.01 --selection res --res_sel max --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_max_p0.01 2>&1 &
+0.7172 0.9448
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_exp_p0.01 --selection res --res_sel exp --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_exp_p0.01 2>&1 &
+0.7530 0.9453
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_exp_p0.01 --selection res --res_sel exp --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_exp_p0.01 2>&1 &
+0.7181 0.9480
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_linear_p0.01 --selection res --res_sel linear --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_linear_p0.01 2>&1 &
+0.6865 0.9471
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_linear_p0.01 --selection res --res_sel linear --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_linear_p0.01 2>&1 &
+0.8231 0.9431
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_log_p0.01 --selection res --res_sel log --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_log_p0.01 2>&1 &
+0.8213 0.9498
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_log_p0.01 --selection res --res_sel log --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_log_p0.01 2>&1 &
+0.8234 0.9473
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_square_p0.01 --selection res --res_sel square --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_square_p0.01 2>&1 &
+0.7827 0.9474
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_square_p0.01 --selection res --res_sel square --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_square_p0.01 2>&1 &
+0.8488 0.9438
+0.005
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_ran_p0.005 --selection random --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_ran_p0.005 2>&1 &
+0.3430 0.9477
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_ran_p0.005 --selection random --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_ran_p0.005 2>&1 &
+0.4266 0.9473
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_forget_p0.005 --selection forget --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_forget_p0.005 2>&1 &
+0.7169 0.9447
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_forget_p0.005 --selection forget --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_forget_p0.005 2>&1 &
+0.6162 0.9422
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_grad_p0.005 --selection grad --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_grad_p0.005 2>&1 &
+0.4676 0.9445
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_grad_p0.005 --selection grad --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_grad_p0.005 2>&1 &
+0.5265 0.9464
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_loss_p0.005 --selection loss --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_loss_p0.005 2>&1 &
+0.4833 0.9487
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_loss_p0.005 --selection loss --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_loss_p0.005 2>&1 &
+0.5311 0.9488
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_max_p0.005 --selection res --res_sel max --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_max_p0.005 2>&1 &
+0.6378 0.9431
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_max_p0.005 --selection res --res_sel max --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_max_p0.005 2>&1 &
+0.6262 0.9491
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_exp_p0.005 --selection res --res_sel exp --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_exp_p0.005 2>&1 &
+0.6704 0.9454
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_exp_p0.005 --selection res --res_sel exp --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_exp_p0.005 2>&1 &
+0.6248 0.9410
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_linear_p0.005 --selection res --res_sel linear --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_linear_p0.005 2>&1 &
+0.6918 0.9421
+CUDA_VISIBLE_DEVICES=1 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_linear_p0.005 --selection res --res_sel linear --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_linear_p0.005 2>&1 &
+0.7402 0.9452
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_log_p0.005 --selection res --res_sel log --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_log_p0.005 2>&1 &
+0.7716 0.9479
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_log_p0.005 --selection res --res_sel log --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_log_p0.005 2>&1 &
+0.7118 0.9461
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_badnets_square_p0.005 --selection res --res_sel square --backdoor_type badnets --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_badnets_square_p0.005 2>&1 &
+0.7847 0.9462
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_blend_square_p0.005 --selection res --res_sel square --backdoor_type blend --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.005 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_blend_square_p0.005 2>&1 &
+0.7598 0.9473
+CUDA_VISIBLE_DEVICES=0 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q24:48:8_forget_p0.01 --selection forget --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 24:48:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q24:48:8_forget_p0.01 2>&1 &
+0.8572 0.9417
+CUDA_VISIBLE_DEVICES=2 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q24:48:8_ran_p0.01 --selection random --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 24:48:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q24:48:8_ran_p0.01 2>&1 &
+0.3212 0.9494
+CUDA_VISIBLE_DEVICES=3 setsid python train_backdoor.py --model resnet18 --output_dir save_metric_10_res --result_dir neurips_cifar10_q255:255:8_forget_p0.01 --selection forget --backdoor_type quantize --y_target 0 --select_epoch 100 --num_levels 255:255:8 --poison_rate 0.01 --dataset cifar10 --num_classes 10 >./log_neurips_cifar10_q255:255:8_forget_p0.01 2>&1 &
+0.8443 0.9461
