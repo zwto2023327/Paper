@@ -122,16 +122,15 @@
 
 
 \begin{abstract}
-Backdoor attacks aim to covertly inject attacker-desired behavior into Deep Neural Networks (DNNs). Clean-label backdoor attacks are seen as the stealthiest attacks as adversaries can only poison samples from the target class without changing their labels. The effectiveness of clean-label attacks can be enhanced by carefully selecting poisoned samples. However, the collaborative effect of data poisoning selection and trigger design remains under-explored. In this paper, we highlight the significance of trigger-specific sample selection from two angles: boosting trigger stealthiness and efficiency. Firstly, we enhance the Bits Per Pixel (BPP) trigger by distinct color quantitation based on the human eyes' inherent poor insensitivity to blue light, and the invisibility of the trigger is ensured by poisoning the images with the smallest perceived distance changes during quantization. By poisoning 2.5\% images of CIFAR10, the optimized attack overwhelms the BPP Attack by Attack Success Rate (ASR) from 12.5\% to 68.89\% even without label poisoning and training control. Secondly, we notice that current metrics ignore the competition between trigger features and non-target class robust features. For example, the forgetting-event metric only focuses on the frequency of forgetting events without paying attention to the category information of incorrect results. In sample selection, the consideration of category information for incorrect results varies across diverse triggers due to different extent of interference from non-target features on the learning of toxic features. Extensive experiments exhibit the tremendous superiority of trigger-specific metrics upon enhancing attacks across CIFAR10, CIFAR100, and Tiny-imagenet datasets. 
+Backdoor attacks aim to covertly inject attacker-desired behavior into Deep Neural Networks (DNNs). Poison-only clean-label backdoor attacks are seen as the stealthiest attacks as adversaries only poison the dataset without changing the label of samples. The effectiveness of poison-only backdoor attacks hinges on the selection of poisoned data and the design of the trigger. However, current methods' sample selection and trigger design are handled independently and the collaborative effect remains under-explored. In this paper, we highlight the significance of trigger-specific sample selection by two simple but efficient poisoning sample selection strategies that can be generally applicable to various attacks.
+Firstly, the constraints for the intensity of trigger features can be loosened by selecting samples visually insensitive to poisoning according to the trigger. We enhance the Bits Per Pixel (BPP) trigger by distinct color quantitation based on the human eyes' inherent poor insensitivity to blue light, and the invisibility of the trigger is ensured by poisoning the images with the smallest perceived distance changes during quantization. By poisoning 2.5\% images of CIFAR10, the optimized attack overwhelms the BPP Attack by Attack Success Rate (ASR) from 12.5\% to 76.6\% even without label poisoning and training control. Secondly, we notice that current metrics ignore the competition between trigger features and non-target class features. The level of interference by non-target class features varies across diverse triggers because of the trigger features (e.g., the size of the poisoning area). Extensive experiments exhibit the tremendous superiority of trigger-specific metrics by introducing considerations of category information across CIFAR10, CIFAR100, and Tiny-imagenet datasets. Specifically, by poisoning 0.2\% samples of CIFAR100 based on the optimized forgetting event metric, the ASR of Badnets can be enhanced from \(59.39\%\) to \(80.48\%\) compared to selecting samples based on the origin forgetting event metric.
 \end{abstract}
 
-\paragraph{Remark of poisoned samples generation}
-The effectiveness of poison-only backdoor attacks hinges on the selection of poisoned data and the design of the trigger. However, \textbf{sample selection and trigger design of current methods are handled independently.} The goal of our paper is to find a simple but efficient poisoning sample selection strategy that can be generally applicable to various poison-only clean-label backdoor attacks by exploring the collaborative effect of step 1 and step 2. %优化abstract，强调方法的泛化性，简写Bppattack
 
 \section{Introduction}
 Deep neural networks (DNNs) have gained widespread adoption owing to their proven effectiveness and efficiency. However, their accuracy comes at the cost of intelligibility: it is usually unclear how they make their decisions (\citet{radenovic2022neural}) and what they have learned, which poses significant challenges for scientists in efficiently defending the backdoor attacks (\citet{doan2021backdoor},\citet{287378}, \citet{10.1145/3576915.3616617}). The deployment of models harboring security flaws pose a threat to the development of secure applications in important areas like ﬁnance, healthcare, Machine-Learning-as-a-Service (MLaaS)(\citet{huang2024uba}), autonomous driving, and beyond, thus rendering the investigation of backdoor attacks a vital area of research endeavor. 
 
-Backdoor attacks aim to inject the behavior desired by the attacker into the model in a covert manner. A successful covert attack hinges on choosing a trigger pattern that remains effective at low poisoning rates while being stealthy to the human eye to evade manual inspections. Furthermore, most attacks can be set up as more challenging clean-label attack scenarios. Clean-label backdoor attacks ((\citet{huynh2024combat}, \citet{zhao2024exploring})) are seen as the stealthiest attacks as adversaries can only poison samples from the target class without changing their labels. However, current attacks confront challenges in achieving both potency and invisibility without label poisoning in a straightforward way. For example, \citet{wang2022bppattack} proposed BppAttack, a stealthy attack which induces triggers based on image quantization and dithering. Due to the limited potency of imperceptible alterations, adversaries resort to adversarial training with label flipping to effectively embed the triggers. Generally speaking, BppAttack cannot achieve a powerful clean-label invisible backdoor attack by only poisoning the dataset.
+Backdoor attacks aim to inject the behavior desired by the attacker into the model in a covert manner. A successful covert attack hinges on choosing a trigger pattern that remains effective at low poisoning rates while being stealthy to the human eye to evade manual inspections. Furthermore, most attacks can be set up as more challenging clean-label attack scenarios. Clean-label backdoor attacks ((\citet{huynh2024combat}, \citet{zhao2024exploring})) are seen as the stealthiest attacks as adversaries can only poison samples from the target class without changing their labels. However, current attacks confront challenges in achieving both potency and invisibility without label poisoning in a straightforward way. For example, \citet{wang2022bppattack} proposed BppAttack, a stealthy attack that induces triggers based on image quantization and dithering. Due to the limited potency of imperceptible alterations, adversaries resort to adversarial training with label flipping to effectively embed the triggers. Generally speaking, BppAttack cannot achieve a powerful clean-label invisible backdoor attack by only poisoning the dataset.
 
 \citet{gao2023not} reveals that the challenge of clean-label attacks primarily stems from the conflicting effects of 'robust features' associated with the target class within poisoned samples.  Therefore, a simple yet effective plug-in method is proposed to enhance clean-label backdoor attacks by poisoning ‘hard’ instead of random samples. However, existing methods (\citet{hayase2022few}, \citet{li2023explore}, \citet{li2024proxy}, \citet{hungwicked}, \citet{wang2025not}, \citet{han2024backdooring}) overlook the stealthiness aspect of poisoned data selection and fail to consider the influence of non-target class robust features on trigger feature learning. The collaborative effect of data poisoning selection and trigger design remains under-explored. In this paper, we highlight the significance of trigger-specific sample selection in augmenting both trigger stealthiness and efficiency.
 
@@ -179,7 +178,7 @@ In a poison-only backdoor attack, an adversary has access to the original traini
 \paragraph{Attack Workflow}
 The detailed workflow of a poison-only clean-label backdoor attack is presented to elaborate the theory of backdoor attacks. How to generate the poisoned dataset \(D_{p}\) is the cornerstone of the attack. We will remark on the important evaluation criteria in each step.
 
-\textbf{Step 1: Select samples to be poisoned (by attackers).} \(D_{p}\) consists of two disjoint parts. Given a target label \(y_t\), a subset \(D_s\) is selected from target-label set \(D_t = \{(x_i, y_i)| (x_i, y_i) \in D_{tr}, y_i = y_t\}\) to be poisoned and the remain benign samples can be denoted as \(D_b = D_{tr} \backslash D_s\). Here we define a binary vector \(M = [M_1,M_2,\ldots,M_{|D_{tr}|}] \in \{0,1\}^{|D|}\) to represent the poisoning selection. Specifically, \(M_i=1\) indicates that \(x_i\) is selected to be poisoned while \(M_i = 0\) means the benign sample. We denote \(\alpha := \frac{|D_s|}{|D_{tr}|}\) as the poisoning rate. Note that most existing backdoor backdoor attack methods randomly select \(\alpha \cdot |D_{tr}|\) samples to be poisoned. \(\alpha\) serves as a crucial indicator of stealthiness in poison-only attacks, facilitating their ability to evade both machine and manual inspections. 
+\textbf{Step 1: Select samples to be poisoned (by attackers).} \(D_{p}\) consists of two disjoint parts. Given a target label \(y_t\), a subset \(D_s\) is selected from target-label set \(D_t = \{(x_i, y_i)| (x_i, y_i) \in D_{tr}, y_i = y_t\}\) to be poisoned and the remain benign samples can be denoted as \(D_b = D_{tr} \backslash D_s\). Here we define a binary vector \(M = [M_1,M_2,\ldots,M_{|D_{tr}|}] \in \{0,1\}^{|D|}\) to represent the poisoning selection. Specifically, \(M_i=1\) indicates that \(x_i\) is selected to be poisoned while \(M_i = 0\) means the benign sample. We denote \(\alpha := \frac{|D_s|}{|D_{tr}|}\) as the poisoning rate. Note that most existing backdoor backdoor attack methods randomly select \(\alpha \cdot |D_{tr}|\) samples to be poisoned. \(\alpha\) serves as a crucial indicator of stealthiness in poison-only attacks. Backdoor attacks are supposed to maintain a high attack success rate with \(\alpha\) as small as possible to evade both machine and manual inspections.
 
 \textbf{Step 2: Trigger Insertion (by attackers).}  In computer vision applications, the adversary designs a trigger pattern \(w\) by tweaking the pixel values and positions of the benign image. The generator of poisoned images can be denoted as \(f_g:X \to X\). For example, \(f_g(x) = (1-m)*x + m*w\), where the mask \(m \in [0,1]^{C \times H \times W }\) representing the poison area of the trigger \(w\) and \(*\) representing the element-wise product. Therefore, given the target label \(y_t\) in a clean-label attack, the generated poisoned training dataset could be denoted as \(D_p = \{(x_i,y_i)|_{if\;m_i = 0}, \; or \;(f_g(x_i), y_t)|_{if\;m_i = 1}\}_{i=1}^{|D_{tr}|}\). For stronger stealthiness, the attackers want the trigger \(w\) to be sufficiently invisible, which means the distance \(L_D(f_g(x_i),x_i)\) should be small.
 
@@ -294,7 +293,7 @@ poisoning:
 D_s = arg \max_{D_s\subset D_t}\sum_{(x_i,y_i) \in D_s}||\nabla_{\theta} L(f_{\theta}(x_i), y_i)||_2.
 \end{equation}
 
-\paragraph{Forgetting Event} We name the event when a sample \(x_i\) was classified correctly in the previous epoch but incorrectly in the current epoch as a forgetting event of sample \(x_i\). The number of forgetting events happened on sample \(x_i\) during the training process is denoted as \(Num_{forget}(x_i)\). Those samples with the greatest \(\alpha*|D_{tr}|\) forgetting statistics in the subset \(D_t\) are chosen for trigger injection:
+\paragraph{Forgetting Event} We denote the event when a sample \(x_i\) was classified correctly in the previous epoch but incorrectly in the current epoch as a forgetting event of sample \(x_i\). The number of forgetting events happened on sample \(x_i\) during the training process is denoted as \(Num_{forget}(x_i)\). Those samples with the greatest \(\alpha*|D_{tr}|\) forgetting statistics in the subset \(D_t\) are chosen for trigger injection:
 \begin{equation}
 D_s = arg \max_{D_s\subset D_t}\sum_{(x_i,y_i) \in D_s}Num_{forget}(x_i).
 \end{equation}
@@ -394,10 +393,10 @@ The first class ("airplane") is designated as the target class. The BppAttack ge
 \includegraphics[width=0.2\linewidth]{Styles/figures/2_Q12_255_255.jpeg}}
 \subfigure[\fontsize{10}{12}\selectfont 255:12:255]{
 \includegraphics[width=0.2\linewidth]{Styles/figures/2_Q255_12_255.jpeg}}
-\caption{Images poisoned by different attacks. The images in the CIFAR-10 dataset have relatively low pixel quality, making it difficult to compare the subtle differences in visibility among different methods. Therefore, we have selected images from the training set of the same category in the ImageNet dataset, which has higher quality, as demonstrations. Methods a-d involve randomly selecting poisoned data, while methods e-l involve selecting images that are more concealed after poisoning.} 
+\caption{Visualizations of images poisoned by various attacks. Considering the images in CIFAR10 exhibit low pixel quality, we select high-quality images with the same label in ImageNet to facilitate the comparison between the visibility of triggers across various methods. Compared to Methods a-d, images that are visually insensitive to attacks are selected in Methods e-i.} 
 \end{figure*}
 \paragraph{Stealthiness}
-The original BppAttack randomly selects data for poisoning. To maintain the stealthiness of the trigger, BppAttack needs to adopt a smaller quantization step \((32:32:32)\), which makes it difficult for the trigger features to be learned. Our method further optimizes based on two observations: 1. Images e, i, and j at Figure 2 correspond to the effects of poisoning the blue, red, and green channels, respectively. From a comparison of human visibility, it can be seen that the human eye is much less sensitive to the blue channel than to the other channels. Therefore, increasing the poisoning intensity in the blue channel can still maintain invisibility to the human eye. 2. According to Figure 2, images a and b show that within the same category of the same dataset, there are images with vastly different sensitivities to trigger features from a visibility perspective. By reasonably selecting data, the stealthiness of the trigger can be well ensured. The comparison between images d and b indicates that data that is insensitive to MultiBpp in terms of human visibility is more sensitive to Blend attacks. Moreover, performing a Blend attack based on image b will provide better concealment compared to attack based on image d. Therefore, The strategy for selecting insensitive data from the perspective of stealthiness still needs to consider the trigger features. 
+The original BppAttack randomly selects data for poisoning. To maintain the stealthiness of the trigger, BppAttack needs to adopt a smaller quantization step \((32:32:32)\), which makes it difficult for the trigger features to be learned. We optimize the BppAttack based on two key observations. Firstly, current research on colorimetry reveals that the human visual system exhibit vastly different sensitivities to colors. For example, we can observe that enhanced attacks by increasing the poisoning intensity in the blue channel can still maintain invisibility to the human eye (Figure 2e) compared to attacks enhanced on other channels (Figure 2i, Figure 2j). Secondly, different images exhibit different visually insensitivity to the specific trigger. For example, we can observe that the MultiBpp attack can still maintain more invisibility to the human visual system by poisoning images in Figure 2e compared to images in other images (e.g., image in Figure 2b). However, the image in Figure 2b is more visually insensitive for Blended-C compared to images in Figure 2e. Therefore, the stealthiness of the trigger can be effectively preserved by carefully selecting appropriate samples based on the characteristics of the trigger pattern.
 
 \begin{table*}[h]
 \resizebox{.98\columnwidth}{!}{
@@ -455,9 +454,8 @@ The original BppAttack randomly selects data for poisoning. To maintain the stea
 According to Tables 1c and 1b, even under strong conditions such as label flipping and controlled training, BppAttack still cannot guarantee the effectiveness of the attack (ASR of 12.5\%) at a poisoning rate of 2.5\%. As shown in Tables e-h, our proposed method significantly improves the attack effect under the clean-label setting and with only the dataset being poisoned. Specifically, MultiBpp achieves an ASR of 76.6\% with a quantization step of 24:48:8 while maintaining a higher BA. Furthermore, Tables 1i-l indicate that there are still differences in efficiency when poisoning different channels. Specifically, poisoning the red and green channels yields better results. We speculate that the model also infers during the learning process that features in the red and green channels are more valuable, leading to different learning sensitivities. Tables 1e and f, as well as g and h, both indicate that increasing the quantization step generally improves the attack success rate. It is worth noting that a comparison between f and h suggests that there are exceptions to this rule. We speculate that the learning effectiveness of poisoning features is not solely influenced by the intensity of quantization efforts. Specifically, in scenarios with lower quantization intensity (f and h), the model needs to focus on features from three channels when learning h, whereas it only needs to attend to features from one channel when learning f. In such scenarios, the model finds it easier to learn f rather than h, which involves a greater quantization effort.
 \subsection{Superity of Trigger-specific Selection(todo name)}
 \subsubsection{Attack Setup.}
-We conduct experiments on two benchmark datasets, including CIFAR-10 and CIFAR-100 (\cite{krizhevsky2009learning}), with ResNet-18 (\cite{he2016deep}). We compare our plug-in methods against the standard version with random selection (dubbed 'vanilla') and existing sample selection strategies based on various metrics (such as forgetting events, gradient norm, and loss value). To objectively describe the superiority of our method, we adopt the same experimental setup as the setting devised by \citet{gao2023not}. We introduce the clean-label variants of two classic poisoned-label attacks: BadNets (dubbed 'BadNets-C') as a representative of attacks with small poisoning area, and an attack utilizing a blended strategy (dubbed 'Blended-C') as a representative of attacks poisoning the whole image, by poisoning samples only from the target class. For BadNets, a \(3 \times 3\) checkerboard pattern is utilized as the trigger. For the Blended attack, a Hello-Kitty image is selected as the trigger and blended with the original images, with a transparency parameter of \(0.2\). Considering that the main objective of this chapter is to demonstrate the superiority of the filtering strategy in enhancing attack effectiveness, the selection of poisoned data for the MultiBpp attack in this chapter will be entirely consistent with that of other attacks. The stealthiness of the trigger is ensured by the quantization strength. In CIFAR10, we adopt the more stealthy settings of 255:255:12 and 36:72:12 from Section 4.2 as the attack configurations. Across all these attacks upon CIFAR10, \(10\%\) of the samples from the target class (representing \(1\%\) of the total samples) are poisoned, with the first class ("airplane") designated as the target class. We use the same evaluation metric mentioned in Section 4.2.1.
-\paragraph{Attack Setup on CIFAR-100.(todo)}
-For BadNets, a \(3 × 3\) checkerboard pattern is utilized as the trigger. For the Blended attack, a Hello-Kitty image is selected as the trigger and blended with the original images, with a transparency parameter of \(0.2\). Across all these attacks, \(10\%\) of the samples from the target class (representing \(1\%\) of the total samples) are poisoned, with the first class ("airplane") designated as the target class.
+We conduct experiments on two benchmark datasets, including CIFAR-10 and CIFAR-100 (\cite{krizhevsky2009learning}), with ResNet-18 (\cite{he2016deep}). We compare our plug-in methods against the standard version with random selection (dubbed 'vanilla') and existing sample selection strategies based on various metrics (such as forgetting events, gradient norm, and loss value). To objectively describe the superiority of our method, we adopt the same experimental setup as the setting devised by \citet{gao2023not}. We introduce the clean-label variants of two classic poisoned-label attacks: BadNets (dubbed 'BadNets-C') as a representative of attacks with small poisoning area, and an attack utilizing a blended strategy (dubbed 'Blended-C') as a representative of attacks poisoning the whole image, by poisoning samples only from the target class. For BadNets, a \(3 \times 3\) checkerboard pattern is utilized as the trigger. For the Blended attack, a Hello-Kitty image is selected as the trigger and blended with the original images, with a transparency parameter of \(0.2\). Considering that the main objective of this chapter is to demonstrate the superiority of the filtering strategy in enhancing attack effectiveness, the selection of poisoned data for the MultiBpp attack in this chapter will be entirely consistent with that of other attacks. The stealthiness of the trigger is ensured by the quantization strength. In CIFAR10, we adopt the more stealthy settings of 255:255:12 and 36:72:12 from Section 4.2 as the attack configurations. Across all these attacks upon CIFAR10, \(10\%\) of the samples from the target class (representing \(1\%\) of the total samples) are poisoned, with the first class ("airplane") designated as the target class. Across all these attacks upon CIFAR100, we construct experiments by poisoning \(20\%\) (\(50\%\)) of the samples from the target class (representing \(0.2\%\) (\(0.5\%\)) of the total samples). We use the same evaluation metric mentioned in Section 4.2.1.
+
 \subsubsection{Result Analysis.}
 \begin{table*}[h]
 \resizebox{.98\columnwidth}{!}{
@@ -509,52 +507,53 @@ For BadNets, a \(3 × 3\) checkerboard pattern is utilized as the trigger. For t
 \caption{Performance of attacks by poisoning 1\% samples of CIFAR10. \textbf{\textcolor{red}{Red}} represents the negative performance of attacks. \(N_p^R:N_p^G:N_p^B\) in \textbf{Method} of MultiBpp represents the concrete quantization setting of poisoning intensity in RGB channels.}
 \end{table*}
 \paragraph{Analysis on CIFAR10}
-From the comparison between images {e, f, g} and {b, c, d}, it can be concluded that incorporating considerations of category diversity in data filtering can significantly enhance attack effectiveness. Specifically, for BadNets attacks, our method, res-log, outperforms the currently best-performing forgetting event metric by \(11\) percentage points in Attack Success Rate (ASR), corresponding to \(71.74\%\) and \(82.13\%\), respectively. For Blend attacks, our method exceeds the forgetting event metric by approximately \(14\) percentage points in ASR, corresponding to \(71.05\%\) and \(84.88\%\), respectively. Regarding the newly proposed multi-bpp method in this paper, there is also an ASR improvement of over \(6\) percentage points. 
+From the comparison between Methods \{e, f, g\} and \{b, c, d\} according to Table 2, it can be concluded that incorporating considerations of category diversity in data filtering can significantly enhance attack effectiveness. Specifically, for BadNets attacks, our method, res-log, outperforms the currently advanced metric (e.g., metric d in Table 2) by \(11\) percentage points in Attack Success Rate (ASR), corresponding to \(71.74\%\) and \(82.13\%\), respectively. For Blend attacks, our method exceeds the forgetting event metric by approximately \(14\) percentage points in ASR, corresponding to \(71.05\%\) and \(84.88\%\), respectively. Regarding the newly proposed multi-bpp method in this paper, there is also an ASR improvement of over \(6\) percentage points. 
 
 The selection criteria for e-h are designed to incorporate considerations of category diversity from a light to a heavy degree. From the comparison between d and h across various attacks, it can be seen that excessively emphasizing category diversity is not the optimal strategy. Particularly for attack methods where the poisoning region covers the entire image (Blended-C, MultiBpp), the consideration of category diversity has a greater impact on the filtering strategy. The attack can achieve the optimal combination of poisoned data under the more aggressive strategy g. However, excessively emphasizing category diversity can also lead to a greater decrease in Attack Success Rate (ASR). It is worth noting that BadNets attacks belong to the type of attacks that poison specific regions of images. Therefore, the learning of trigger features relies more on whether the samples themselves are difficult to learn, and thus considerations of category diversity should be introduced to a lesser extent. The attack can achieve the optimal combination of poisoned data under the less aggressive strategy e. Therefore, the choice of data filtering strategy needs to take into account the characteristics of the trigger itself. By reasonably designing a filtering strategy that incorporates considerations of category diversity based on the trigger characteristics, an optimal set of poisoned data can be obtained.
+
 \begin{table*}[h]
 \resizebox{.98\columnwidth}{!}{
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|}
 \hline
-\multicolumn{3}{|c|}{\textit{Method}} & \multicolumn{}{|c|}{\textit{Metric}}&\multicolumn{2}{c|}{\textit{Poisoning Rate $\alpha=0.1\%$}}&\multicolumn{2}{c|}{\textit{Poisoning Rate $\alpha=0.2\%$}}\\
+\multicolumn{3}{|c|}{\textit{Method}} & \multicolumn{}{|c|}{\textit{Metric}}&\multicolumn{2}{c|}{\textit{Poisoning Rate $\alpha=0.2\%$}}&\multicolumn{2}{c|}{\textit{Poisoning Rate $\alpha=0.5\%$}}\\
 \cline{1-8}
 
 \multirow{1}{*}{Type} & no. & Selection &  & Badnets-C & Blended-C & Badnets-C & Blended-C\\
 \hline
 
-\multirow{8}{*}{Benchmark} & \multirow{2}{*}{a} & \multirow{2}{*}{Vanilla} & BA & 94.42\% & 94.90\% & 94.51\% & 94.95\% \\
+\multirow{8}{*}{Benchmark} & \multirow{2}{*}{a} & \multirow{2}{*}{Vanilla} & BA & 77.86\% & 77.70\% & 78.46\% & 78.51\% \\
 %\cline{4-8}
 
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 37.24\% & 53.41\% & \textcolor{red}{1.37\%} & \textcolor{red}{1.16\%} \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 7.49\% & 40.48\% & 51.49\% & 65.55\% \\
 %\cline{2-8}
-\multirow{8}{*}{} & \multirow{2}{*}{b} & \multirow{2}{*}{Loss Value} & BA & 94.71\% & \textbf{95.10\%} & 94.84\% & 94.76\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{b} & \multirow{2}{*}{Loss Value} & BA & 78.01\% & 78.83\% & 78.06\% & 78.27\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 52.71\% & 59.43\% & 28.02\% & 47.85\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 17.84\% & 46.59\% & 70.97\% & 70.42\% \\
 %\cline{2-8}
-\multirow{8}{*}{} & \multirow{2}{*}{c} & \multirow{2}{*}{Gradient Norm} & BA & 94.45\% & 94.77\% & \textbf{95.04\%} & \textbf{95.03\%} \\
+\multirow{8}{*}{} & \multirow{2}{*}{c} & \multirow{2}{*}{Gradient Norm} & BA & 78.28\% & 78.62\% & 78.67\% & 78.33\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 52.56\% & 58.45\% & 38.26\% & 53.28\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 25.25\% & 53.03\% & \textbf{82.02\%} & 72.51\% \\
 %\cline{2-8}
-\multirow{8}{*}{} & \multirow{2}{*}{d} & \multirow{2}{*}{Forgetting Event} & BA & \textbf{94.90\%} & 94.55\% & 94.92\% & 94.90\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{d} & \multirow{2}{*}{Forgetting Event} & BA & 78.21\% & 78.10\% & 94.92\% & 94.90\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & \textbf{71.74\%} & \textbf{71.05\%} & \textbf{74.39\%} & \textbf{78.10\%} \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & \textbf{59.39\%} & \textbf{63.11\%} & 79.69\% & \textbf{73.31\%} \\
 \cline{1-8}
-\multirow{8}{*}{Our Method} & \multirow{2}{*}{e} & \multirow{2}{*}{Res-log} & BA & \textbf{94.98\%} & 94.73\% & 94.54\% & 94.82\% \\
+\multirow{8}{*}{Our Method} & \multirow{2}{*}{e} & \multirow{2}{*}{Res-log} & BA & 78.22\% & 78.04\% & 78.33\% & 78.17\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & \textbf{82.13\%} & 82.34\% & 77.10\% & 80.20\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 62.64\% & 67.53\% & 83.71\% & 73.63\% \\
 %\cline{2-8}
-\multirow{8}{*}{} & \multirow{2}{*}{f} & \multirow{2}{*}{Res-linear} & BA & 94.71\% & 94.31\% & 94.21\% & 94.63\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{f} & \multirow{2}{*}{Res-linear} & BA & 78.25\% & 78.29\% & 78.46\% & 78.30\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 68.65\% & 82.31\% & 76.73\% & 83.07\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & \textbf{80.48\%} & \textbf{73.48\%} & 84.05\% & 76.36\% \\
 %\cline{2-8}
-\multirow{8}{*}{} & \multirow{2}{*}{g} & \multirow{2}{*}{Res-square} & BA & 94.94\% & 94.38\% & 94.58\% & 94.59\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{g} & \multirow{2}{*}{Res-square} & BA & 78.08\% & 78.08\% & 78.56\% & 77.92\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 78.76\% & \textbf{84.88\%} & \textbf{82.54\%} & \textbf{83.88\%} \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 72.48\% & 66.27\% & \textbf{85.06\%} &\textbf{ 77.45\%} \\
 %\cline{2-8}
-\multirow{8}{*}{} & \multirow{2}{*}{h} & \multirow{2}{*}{Res-exp} & BA & 94.47\% & \textbf{94.80\%} & \textbf{94.72\%} & \textbf{94.85\%} \\
+\multirow{8}{*}{} & \multirow{2}{*}{h} & \multirow{2}{*}{Res-exp} & BA & 78.18\% & 78.16\% & 94.72\% & 94.85\% \\
 %\cline{4-8}
-\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 76.50\% & 71.81\% & 53.92\% & 62.28\% \\
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 52.14\% & 60.04\% & 71.41\% & 72.20\% \\
 \cline{2-8}
 \hline
 \end{tabular}
@@ -562,9 +561,99 @@ The selection criteria for e-h are designed to incorporate considerations of cat
 \caption{Performance of attacks upon CIFAR100.}
 \end{table*}
 \paragraph{Analysis on CIFAR100}
-\subsection{Ablation Study}
+Based on Tables 3d and 3f, Badnets-C achieves an attack success rate of \(80.48\%\) under our proposed Res-linear strategy, which is \(21\%\) higher than the current optimal traditional filtering metric (Forgetting Event). Furthermore, according to Table 2, we learn that Badnets-C reaches optimal attack effectiveness when adopting the less aggressive Res-log strategy. This indicates that in the CIFAR100 dataset with more categories, the consideration of category richness should carry greater weight in the optimal poisoning data filtering strategy. In addition, with an attack success rate maintained at \(80\%\) under the optimal poisoning strategy (Table 2e and Table 3f), the absolute percentage point improvements compared to Forgetting Event (d) are \(10\) and \(20\), respectively. This demonstrates that the value of our work is even more significant in scenarios with a larger number of categories. Moreover, CIFAR100 is more aligned with practical application scenarios and is more challenging than CIFAR10. This suggests the great potential of our method.
 
+In the clean-label attack setting of CIFAR100, even if all target category data are poisoned, the poisoning rate across the entire dataset is only \(1\%\). Therefore, in an attack setting with a \(0.5\%\) poisoning rate, each method aims to select \(50\%\) of the data from the given dataset for poisoning. The superiority differences among poisoning data strategies are significantly reduced. For example, for current selection methods, compared to the inferior selection strategy of Loss Value, the ASR difference (Table 3d ASR - Table 3b ASR) for Badnets-C and Blended-C decreases from \(31.55\% (59.39\% - 17.84\%)\) and \(16.52\% (63.11\% - 46.59\%)\) to \(8.72\% (79.69\% - 70.97\%)\) and \(2.89\% (73.31\% - 70.42\%)\), respectively. This scenario raises another question: whether our method can still maintain its superiority under the extreme condition of selecting \(50\%\) of the data for the attack. According to Table 3d, in the Badnets-C setting with a \(0.5\%\) poisoning rate, Forgetting Event has lost its superiority observed in low poisoning rate scenarios. In contrast, our selection strategy still maintains its superiority. Compared to the scenario with a \(0.2\%\) poisoning rate, the optimal data selection strategy shifts from Res-linear to Res-square in the scenario with a \(0.5\%\) poisoning rate. This indicates that in situations where differences in poisoning strategies are diminished, the consideration of category richness still needs to be strengthened. 
+
+According to Section 3.2.3, in the Res-exp setting, the selection strategy primarily considers the number of categories without much regard for the frequency of transitions. Conversely, Forgetting Event largely focuses on the frequency of transitions without considering the number of categories. All results in Tables 2 and 3 indicate that the optimal poisoning selection strategy is a comprehensive consideration of both factors. The extent to which category information is incorporated depends on the characteristics of the trigger itself.
+
+\subsection{Ablation Study}
+\subsubsection{Effect of Poisoning Area}
+\paragraph{Attack Setup.}
+To explore the effect of the poisoning area on selecting the optimal strategy for poisoning data, we conduct a series of variations on Blended-C and name them BlendX (\(X\in\{20,24,28,32\}\)), where X represents the size of the poisoning area. The original Blended-C can be represented as Blend32. Across all these attacks, \(10\%\) of the samples from the target class (representing \(1\%\) of the total samples) are poisoned.
+\begin{table*}[h]
+\resizebox{.98\columnwidth}{!}{
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{3}{|c|}{\textit{Method}} & \multicolumn{}{|c|}{\textit{Metric}}&\multicolumn{4}{c|}{\textit{Attack}}\\
+\cline{1-8}
+
+\multirow{1}{*}{Type} & no. & Selection &  & Blend32 & Blend28 & Blend24 & Blend20\\
+\hline
+
+\multirow{8}{*}{Benchmark} & \multirow{2}{*}{a} & \multirow{2}{*}{Vanilla} & BA & 94.95\% & 94.69\% & 94.89\% & 94.68\% \\
+%\cline{4-8}
+
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 53.44\% & 48.47\% & 39.45\% & 18.15\% \\
+%\cline{2-8}
+\multirow{8}{*}{} & \multirow{2}{*}{b} & \multirow{2}{*}{Loss Value} & BA & 94.89\% & 94.77\% & 94.63\% & 94.73\% \\
+%\cline{4-8}
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 60.93\% & 58.85\% & 54.11\% & 39.78\% \\
+%\cline{2-8}
+\multirow{8}{*}{} & \multirow{2}{*}{c} & \multirow{2}{*}{Gradient Norm} & BA & 94.24\% & 94.87\% & 94.63\% & 94.96\% \\
+%\cline{4-8}
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 60.32\% & 58.82\% & 54.21\% & 36.09\% \\
+%\cline{2-8}
+\multirow{8}{*}{} & \multirow{2}{*}{d} & \multirow{2}{*}{Forgetting Event} & BA & 94.59\% & 94.33\% & 94.70\% & 94.15\% \\
+%\cline{4-8}
+\multirow{8}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 70.53\% & 79.49\% & 72.01\% & 66.80\% \\
+\cline{1-8}
+\multirow{6}{*}{Our Method} & \multirow{2}{*}{e} & \multirow{2}{*}{Res-log} & BA & 94.73\% & 94.56\% & 94.95\% & 94.48\% \\
+%\cline{4-8}
+\multirow{6}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 82.34\% & 82.69\% & 76.42\% & 67.49\% \\
+%\cline{2-8}
+\multirow{6}{*}{} & \multirow{2}{*}{f} & \multirow{2}{*}{Res-linear} & BA & 94.31\% & 94.66\% & 94.36\% & 94.76\% \\
+%\cline{4-8}
+\multirow{6}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & 82.31\% & 80.85\% & \textbf{76.49\%} & \textbf{70.65\%} \\
+%\cline{2-8}
+\multirow{6}{*}{} & \multirow{2}{*}{g} & \multirow{2}{*}{Res-square} & BA & 94.38\% & 94.55\% & 94.60\% & 94.66\% \\
+%\cline{4-8}
+\multirow{6}{*}{} & \multirow{2}{*}{} & \multirow{2}{*}{} & ASR & \textbf{84.88\%} & \textbf{83.85\%} & 75.42\% & 68.00\% \\
+\cline{1-8}
+\hline
+\end{tabular}
+}
+\caption{Performance of Blended-C by poisoning 1\% samples of CIFAR10 with different poisoning area. }
+\end{table*}
+\paragraph{Analysis on Poisoning Area}
+According to Table 4, the optimal selection strategies for \{Blend32, Blend28, Blend24, Blend20\} are \{Res-square, Res-square, Res-linear, Res-linear\}, respectively. Additionally, for the Res-square method, its superiority over the Forgetting Event decreases from \(14.35\%\) under Blend32 to \(1.2\%\) under Blend20. As discussed in \textbf{Section 3.2.2}, compared to Res-linear, Res-square takes into account the influence of class richness to a greater extent. We speculate that when the poisoning region of the trigger is smaller, the model only needs to focus on a very small area to learn the backdoor features, thus reducing competition with the learning of other class features. In summary, as the poisoning region becomes smaller, the role of class richness diminishes, and the diversity of classes should be considered with less emphasis. This conclusion once again verifies that the selection strategy for poisoning data should not be divorced from the characteristics of the trigger itself.
+\subsection{Effect of Poisoning Rate}
+\paragraph{Attack Setup.}
+We conduct BlendX (\(X\in\{20,24,28,32\}\)), where X represents the size of the poisoning area, to explore the effect of the poisoning rate on attacks with different sizes of poisoning area.  Across all these attacks, \(\{5\%,10\%,15\%,20\%,25\%\}\) of the samples from the target class (representing \(\{0.5\%,1\%,1.5\%,2\%,2.5\%\}\) of the total samples) are poisoned.
+\begin{figure*}[h]
+\setlength{\itemsep}{-10pt}
+\centering
+\subfigure[\fontsize{10}{12}\selectfont Blend20]{
+\includegraphics[width=0.45\linewidth]{Styles/figures/Blend20.pdf}}
+\subfigure[\fontsize{10}{12}\selectfont Blend24]{
+\includegraphics[width=0.45\linewidth]{Styles/figures/Blend24.pdf}}
+\subfigure[\fontsize{10}{12}\selectfont Blend28]{
+\includegraphics[width=0.45\linewidth]{Styles/figures/Blend28.pdf}}
+\subfigure[\fontsize{10}{12}\selectfont Blend32]{
+\includegraphics[width=0.45\linewidth]{Styles/figures/Blend32.pdf}}
+\caption{Performance of BlendX with different poisoning rates.} 
+\end{figure*}
+\paragraph{Analysis on Poisoning Rate}
+According to Figure 3, the differences between poisoning strategies diminish as the poisoning rate increases. For example, Blend24 using the res-square strategy outperforms the attack using Forgetting Event metric by 20 percentage points in Attack Success Rate (ASR) when the poisoning rate is 0.05\% . However, this gap largely disappears at a poisoning rate of 0.25\% . Nevertheless, our method (res-square) consistently outperforms the current mainstream evaluation criterion (forgetting events) across various poisoning rates. Furthermore, in scenarios with low poisoning rates, the superiority of our method becomes more pronounced as the poisoning area increases. This is because the learning of trigger features in larger poisoning areas is more influenced by class features. Given that the prevailing trend in backdoor attacks is to construct covert attacks by applying minimal perturbations to the entire image with a lower poisoning rate, our method holds promising research prospects and value.
+\subsection{Category Diversity of Different Samples}
+\begin{figure*}[h]
+\centering
+\includegraphics[width=0.98\linewidth]{Styles/figures/CIFAR.pdf}
+\caption{Statistical Data on Category Information. We utilize the variable "num" to denote the count of categories that were incorrectly classified during the pre-training phase. Comprehensive statistics have been gathered on all misclassification instances for both the CIFAR100 and CIFAR10 datasets. The proportional distribution of misclassified data across various categories is visually presented through pie charts and line graphs. Notably, from the CIFAR10 dataset, we have chosen representative samples (X and Y) where the frequency of misclassification events is comparable, yet the diversity in the number of involved categories is markedly different, facilitating effective comparison and illustrative display.} 
+\end{figure*}
+Upon comparing the pie charts for CIFAR100 and CIFAR10 presented in Figure 4, we discern a notable disparity in the diversity of categories into which data points are incorrectly classified. Specifically, in the CIFAR100 dataset, \(10.91\%\) of the data demonstrates a higher diversity of misclassified categories (\(num > 6\)). Similarly, in the CIFAR10 dataset, \(10.69\%\) of the data is misclassified into more than three categories. As elaborated in \textbf{Section 4.3}, these data points provide more insightful guidance for the model to learn trigger features in backdoor attacks, in contrast to data with lower category diversity that constitute a larger proportion. Within the CIFAR100 dataset, the proportions of data points with num values falling within the ranges of \(\{1, 2, 3, 4\}\) are relatively uniform, resulting in a smoother curve in the graphical representation. Conversely, in the CIFAR10 dataset, the proportion of categories decreases sharply as num increases, yielding a steeper curve.
+
+Furthermore, when comparing datasets X and Y, we find that even if they exhibit the same frequency of misclassification (indicating equal priority based on the forgetting event metric), dataset X warrants greater attention due to its higher diversity of misclassified categories. However, it is important to note that, when category diversity is comparable, data points with more frequent misclassification events should also be given higher priority. Ultimately, the selection of poisoned data necessitates a balanced consideration of frequency and category diversity.
+\subsection{Category Similarity}
+\begin{figure*}[h]
+\centering
+\includegraphics[width=0.98\linewidth]{Styles/figures/classes.pdf}
+\caption{Category similarity in CIFAR10. We systematically arrange the proportions of misclassified categories across various data categories y, emphasizing the most prevalent category through white text highlighting. Above each visualization, the correct category corresponding to the pie chart, as well as its representative color in the context of other pie charts, is distinctly labeled.} 
+\end{figure*}
+In CIFAR10, the correspondence between y and the true labels is \{0:airplane, 1:automobile, 2:bird, 3:cat, 4:deer, 5:dog, 6:frog, 7:horse, 8:ship, 9:truck\}. Data belonging to class A that is frequently misclassified as class B suggests a high level of similarity between A and B. As illustrated in Figure 5, significant variations exist in the similarity among different classes. For instance, cars (y=1) exhibit a much higher similarity to trucks than to birds. Consequently, in the pie chart representing cars (y=1), the proportion of trucks (y=9) is substantially larger than that of birds (y=2). Furthermore, the similarity pattern displays symmetry. For the set y=\{0, 1, 2, 3, 4, 5, 8, 9\}, the class with the highest proportion in its corresponding pie chart also dominates the pie chart of that same class. Although y=\{6, 7\} deviate from this trend, they still occupy the second highest proportion in the pie chart of their most dominant class. In this paper, drawing inspiration from entropy theory, we postulate that data X belonging to class y (e.g., automobile) but frequently misclassified into a dissimilar class (e.g., bird) is more challenging to be learned by models and potentially more valuable than data Y misclassified into a similar class (e.g., truck). Poisoning data X encourages the model to adopt shortcuts, facilitating the learning of stronger backdoor features.
 \section{Conclusion}
+Backdoor attacks aim to covertly inject attacker-desired behavior into Deep Neural Networks (DNNs). Clean-label backdoor attacks are seen as the stealthiest attacks as adversaries can only poison samples from the target class without changing their labels. The effectiveness of clean-label attacks can be enhanced by carefully selecting poisoned samples. However, the collaborative effect of data poisoning selection and trigger design remains under-explored. In this paper, we highlight the significance of trigger-specific sample selection from two angles: boosting trigger stealthiness and efficiency. Firstly, we enhance the Bits Per Pixel (BPP) trigger by distinct color quantitation based on the human eye's inherent poor insensitivity to blue light, and the invisibility of the trigger is ensured by poisoning the images with the smallest perceived distance changes during quantization. To more scientifically select images with better stealthiness for poisoning, we innovatively introduce the CIE 1931 Standard Chroma Observer Spectral Tristimulus Values into our selection criteria. To our knowledge, we are the first to introduce the human eye sensitivity curve into the field of backdoor attacks to ensure stealthiness. Secondly, we notice that current metrics ignore the competition between trigger features and non-target class robust features. For example, the forgetting-event metric only focuses on the frequency of forgetting events without paying attention to the category information of incorrect results. In sample selection, the consideration of category information for incorrect results varies across diverse triggers due to the different extent of interference from non-target features on the learning of toxic features. The superiority of our method becomes more pronounced as the poisoning area increases. Given that the prevailing trend in backdoor attacks is to construct covert attacks by applying minimal perturbations to the entire image with a lower poisoning rate, our method holds promising research prospects and value. Extensive experiments exhibit the tremendous superiority of trigger-specific metrics upon enhancing attacks across CIFAR10, CIFAR100, and Tiny-imagenet. 
 \bibliographystyle{plainnat}  % 使用 natbib 提供的样式
 \bibliography{Styles/neurips25} 
 \begin{breakablealgorithm}
@@ -643,4 +732,73 @@ The selection criteria for e-h are designed to incorporate considerations of cat
 \ENDFOR
 \end{algorithmic}
 \end{breakablealgorithm}
+\begin{table*}[h!]
+    \centering
+\begin{minipage}{0.5\textwidth}
+        \centering
+        \resizebox{1\columnwidth}{!}{
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \multicolumn{1}{|c|}{\textit{Method}} & \multicolumn{1}{|c|}{\textit{Metric}}&\multicolumn{1}{|c|}{\textit{Badnets-C}}&\multicolumn{1}{|c|}{\textit{Blended-C}}\\
+            \cline{1-4}
+            \multirow{2}{*}{Vanilla} & BA & 57.50\% & 57.27\% \\
+            %\cline{4-8}
+            
+            \multirow{2}{*}{} & ASR & 17.06\% & 27.71\% \\
+            %\cline{2-8}
+            \multirow{2}{*}{Loss Value} & BA & 57.17\% & 57.49\%\\
+            %\cline{4-8}
+            \multirow{2}{*}{} & ASR & 32.22\% & 37.63\%\\
+            %\cline{2-8}
+            \multirow{2}{*}{Gradient Norm} & BA & 57.69\% & 57.82\%\\
+            %\cline{4-8}
+            \multirow{2}{*}{} & ASR & 31.74\% & 38.74\%\\
+            %\cline{2-8}
+            \multirow{2}{*}{Forgetting Event} & BA & 57.60\% & 57.48\% \\
+            %\cline{4-8}
+            \multirow{2}{*}{} & ASR & 32.29\% & 40.59\%\\
+            \cline{1-4}
+            \hline
+        \end{tabular}
+        }
+        \caption{Benchmark on Tiny-imagenet.}
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+    \centering
+    \resizebox{1\columnwidth}{!}{
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \multicolumn{1}{|c|}{\textit{Method}} & \multicolumn{1}{|c|}{\textit{Metric}}&\multicolumn{1}{|c|}{\textit{Badnets-C}}&\multicolumn{1}{|c|}{\textit{Blended-C}}\\
+            \cline{1-4}
+            
+            \multirow{2}{*}{res-log} & BA &  & 57.24\% \\
+            %\cline{4-8}
+            
+            \multirow{2}{*}{} & ASR & & 42.02\% \\
+            %\cline{2-8}
+            \multirow{2}{*}{res-linear} & BA & 57.17\% & \\
+            %\cline{4-8}
+            \multirow{2}{*}{} & ASR & 32.22\% & \\
+            %\cline{2-8}
+            \multirow{2}{*}{res-square} & BA & 58.01\% & 57.82\%\\
+            %\cline{4-8}
+            \multirow{2}{*}{} & ASR & 38.96\% & 38.74\%\\
+            %\cline{2-8}
+            \multirow{2}{*}{res-exp} & BA & 57.60\% & 57.48\% \\
+            %\cline{4-8}
+            \multirow{2}{*}{} & ASR & 32.29\% & 40.59\%\\
+            \cline{1-4}
+            \hline
+        \end{tabular}
+        }
+    \caption{Our methods on Tiny-imagenet.}
+\end{minipage}
+\end{table*}
+
+\paragraph{Analysis on Tiny-imagenet}
+Based on Tables 3d and 3f, Badnets-C achieves an attack success rate of \(80.48\%\) under our proposed Res-linear strategy, which is \(21\%\) higher than the current optimal traditional filtering metric (Forgetting Event). Furthermore, according to Table 2, we learn that Badnets-C reaches optimal attack effectiveness when adopting the less aggressive Res-log strategy. This indicates that in the CIFAR100 dataset with more categories, the consideration of category richness should carry greater weight in the optimal poisoning data filtering strategy. In addition, with an attack success rate maintained at \(80\%\) under the optimal poisoning strategy (Table 2e and Table 3f), the absolute percentage point improvements compared to Forgetting Event (d) are \(10\) and \(20\), respectively. This demonstrates that the value of our work is even more significant in scenarios with a larger number of categories. Moreover, CIFAR100 is more aligned with practical application scenarios and is more challenging than CIFAR10. This suggests the great potential of our method.
+
+In the clean-label attack setting of CIFAR100, even if all target category data are poisoned, the poisoning rate across the entire dataset is only \(1\%\). Therefore, in an attack setting with a \(0.5\%\) poisoning rate, each method aims to select \(50\%\) of the data from the given dataset for poisoning. The superiority differences among poisoning data strategies are significantly reduced. For example, for current selection methods, compared to the inferior selection strategy of Loss Value, the ASR difference (Table 3d ASR - Table 3b ASR) for Badnets-C and Blended-C decreases from \(31.55\% (59.39\% - 17.84\%)\) and \(16.52\% (63.11\% - 46.59\%)\) to \(8.72\% (79.69\% - 70.97\%)\) and \(2.89\% (73.31\% - 70.42\%)\), respectively. This scenario raises another question: whether our method can still maintain its superiority under the extreme condition of selecting \(50\%\) of the data for the attack. According to Table 3d, in the Badnets-C setting with a \(0.5\%\) poisoning rate, Forgetting Event has lost its superiority observed in low poisoning rate scenarios. In contrast, our selection strategy still maintains its superiority. Compared to the scenario with a \(0.2\%\) poisoning rate, the optimal data selection strategy shifts from Res-linear to Res-square in the scenario with a \(0.5\%\) poisoning rate. This indicates that in situations where differences in poisoning strategies are diminished, the consideration of category richness still needs to be strengthened. 
+
+According to Section 3.2.3, in the Res-exp setting, the selection strategy primarily considers the number of categories without much regard for the frequency of transitions. Conversely, Forgetting Event largely focuses on the frequency of transitions without considering the number of categories. All results in Tables 2 and 3 indicate that the optimal poisoning selection strategy is a comprehensive consideration of both factors. The extent to which category information is incorporated depends on the characteristics of the trigger itself.
 \end{document}
